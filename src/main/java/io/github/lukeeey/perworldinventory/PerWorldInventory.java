@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.*;
 
 public class PerWorldInventory extends PluginBase implements Listener {
+    public boolean ignoreCreativeMode = true;
+    public boolean enableBypassPermission = true;
+
     private final Map<Player,  Map<String, Int2ObjectMap<Item>>> loadedInventories = new HashMap<>();
     private final ObjectList<Player> loading = new ObjectArrayList<>();
 
@@ -37,6 +40,9 @@ public class PerWorldInventory extends PluginBase implements Listener {
         if (!inventoryFile.exists()) {
             inventoryFile.mkdirs();
         }
+
+        this.ignoreCreativeMode = getConfig().getBoolean("ignoreCreativeMode", true);
+        this.enableBypassPermission = getConfig().getBoolean("enableBypassPermission", true);
     }
 
     @Override

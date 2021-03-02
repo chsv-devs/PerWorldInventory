@@ -6,3 +6,6 @@
 # Worlds in which inventories should not be bundled.
 not-bundled-worlds: !!set
   world: null
+
+ignoreCreativeMode: true
+enableBypassPermission: true

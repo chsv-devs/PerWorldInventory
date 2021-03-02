@@ -21,14 +21,14 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
 
-            if (player.isCreative() || player.isSpectator()) {
+            if ((plugin.ignoreCreativeMode && player.isCreative()) || player.isSpectator()) {
                 return;
             }
             Level origin = event.getOrigin();
             Level target = event.getTarget();
 
             plugin.storeInventory(player, origin);
-            if (player.hasPermission("per-world-inventory.bypass")) {
+            if (plugin.enableBypassPermission && player.hasPermission("per-world-inventory.bypass")) {
                 return;
             }
 
