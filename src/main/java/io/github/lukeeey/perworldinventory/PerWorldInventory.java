@@ -1,7 +1,6 @@
 package io.github.lukeeey.perworldinventory;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.event.Listener;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
@@ -10,8 +9,6 @@ import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.TextFormat;
-import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -19,15 +16,13 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PerWorldInventory extends PluginBase implements Listener {
     private final Map<Player,  Map<String, Int2ObjectMap<Item>>> loadedInventories = new HashMap<>();
     private final ObjectList<Player> loading = new ObjectArrayList<>();
 
-    private final Map<String, String> bundledWorlds = new HashMap<>();
+    private Set<String> notBundledWorlds = new HashSet<>();
 
     private File inventoryFile;
 
@@ -36,7 +31,7 @@ public class PerWorldInventory extends PluginBase implements Listener {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
-        parseBundledWorlds();
+        parseNotBundledWorlds();
 
         inventoryFile = new File(getDataFolder(), "inventories");
         if (!inventoryFile.exists()) {
@@ -49,15 +44,12 @@ public class PerWorldInventory extends PluginBase implements Listener {
         saveAllInventories();
     }
 
-    private void parseBundledWorlds() {
-        getConfig().getSection("bundled-worlds").forEach((mainWorld, subWorldsSection) -> {
-            List<String> subWorlds = (List<String>) subWorldsSection;
-            subWorlds.forEach(childWorld -> bundledWorlds.put(childWorld, getParentWorld(mainWorld)));
-        });
+    private void parseNotBundledWorlds() {
+        this.notBundledWorlds = getConfig().get("not-bundled-worlds", new HashSet<>());
     }
 
     public String getParentWorld(String world) {
-        return bundledWorlds.getOrDefault(world, world);
+        return notBundledWorlds.contains(world) ? world : "/";
     }
 
     public Int2ObjectMap<Item> getInventory(Player player, Level level) {
